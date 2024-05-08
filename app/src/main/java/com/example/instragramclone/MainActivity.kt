@@ -11,6 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.instragramclone.auth.SignUpScreen
 import com.example.instragramclone.ui.theme.InstragramCloneTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,10 +36,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+sealed class DestinationScreen(val route:String){
+    object SignUp:DestinationScreen("signup")
+}
 @Composable
 fun InstagramApp(){
     val vm= hiltViewModel<IgViewModel>()
+    val navController= rememberNavController()
+    NavHost(navController =navController , startDestination =DestinationScreen.SignUp.route) {
+        composable(DestinationScreen.SignUp.route){
+            SignUpScreen(navController = navController, vm =vm )
+        }
+    }
 }
 
 @Preview(showBackground = true)
