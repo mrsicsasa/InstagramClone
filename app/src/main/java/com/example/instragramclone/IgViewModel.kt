@@ -2,6 +2,7 @@ package com.example.instragramclone
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.instragramclone.auth.data.Event
 import com.example.instragramclone.auth.data.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,17 +22,22 @@ class IgViewModel @Inject constructor(
     val signedIn = mutableStateOf(false)
     val inProgress = mutableStateOf(false)
     val userData = mutableStateOf<UserData?>(null)
+    val popupNotification= mutableStateOf<Event<String>?>(null)
     fun onSignUp(username: String, email: String, password: String) {
+        println("radi zadata u dugmetu")
         inProgress.value = true
         db.collection(USERS).whereEqualTo("username", username).get()
-            .addOnSuccessListener { documets ->
-                if (documets.size() > 0) {
+            .addOnSuccessListener { documents ->
+                if (documents.size() > 0) {
+                    println("radi zadata nekako zavrsilo vamo")
                     handleException(customMessage = "Username already exists")
                     inProgress.value = false
                 } else {
+                    println("radi zadata proslo da nije isto")
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
+                                println("radi zadata ne bi trebalo biti vamo")
                                 signedIn.value = true
                                 //Create profile
                             } else {
@@ -42,10 +48,14 @@ class IgViewModel @Inject constructor(
                 }
 
             }
-            .addOnFailureListener { }
+            .addOnFailureListener { println("radi zadata ne")}
     }
 
-    fun handleException(exception: Exception? = null, customMessage: String? = null) {
-
+    fun handleException(exception: Exception? = null, customMessage: String = "") {
+        println("radi zadata u gresci")
+        exception?.printStackTrace()
+        val errorMsg=exception?.localizedMessage?:""
+        val message=if (customMessage.isEmpty()) errorMsg else "$customMessage: $errorMsg"
+        popupNotification.value=Event(message)
     }
 }
