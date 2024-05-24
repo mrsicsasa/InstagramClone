@@ -6,6 +6,7 @@ import com.example.instragramclone.auth.data.Event
 import com.example.instragramclone.auth.data.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.lang.Exception
@@ -23,6 +24,13 @@ class IgViewModel @Inject constructor(
     val inProgress = mutableStateOf(false)
     val userData = mutableStateOf<UserData?>(null)
     val popupNotification = mutableStateOf<Event<String>?>(null)
+    init{
+        val currentUser=auth.currentUser
+        signedIn.value=currentUser!=null
+        currentUser?.uid?.let {uid->
+            getUserData(uid)
+        }
+    }
     fun onSignUp(username: String, email: String, password: String) {
 
         inProgress.value = true
@@ -84,18 +92,29 @@ class IgViewModel @Inject constructor(
                     } else {
                         db.collection(USERS).document(uid).set(userData)
                         getUserData(uid)
-                        inProgress.value=false
+                        inProgress.value = false
                     }
                 }
                 .addOnFailureListener {
-                    handleException(it,"Cannot create user")
-                    inProgress.value=false
+                    handleException(it, "Cannot create user")
+                    inProgress.value = false
                 }
         }
     }
 
     private fun getUserData(uid: String) {
-
+        inProgress.value = true
+        db.collection(USERS).document(uid).get()
+            .addOnSuccessListener {
+                val user=it.toObject<UserData>()
+                userData.value=user
+                inProgress.value=false
+                popupNotification.value=Event("User date retrieve successfully")
+            }
+            .addOnFailureListener {
+                handleException(it, "Cannot retrieve user data")
+                inProgress.value = false
+            }
     }
 
     fun handleException(exception: Exception? = null, customMessage: String = "") {
