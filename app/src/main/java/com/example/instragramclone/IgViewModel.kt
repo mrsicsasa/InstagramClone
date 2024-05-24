@@ -22,24 +22,24 @@ class IgViewModel @Inject constructor(
     val signedIn = mutableStateOf(false)
     val inProgress = mutableStateOf(false)
     val userData = mutableStateOf<UserData?>(null)
-    val popupNotification= mutableStateOf<Event<String>?>(null)
+    val popupNotification = mutableStateOf<Event<String>?>(null)
     fun onSignUp(username: String, email: String, password: String) {
-        println("radi zadata u dugmetu")
+
         inProgress.value = true
         db.collection(USERS).whereEqualTo("username", username).get()
             .addOnSuccessListener { documents ->
                 if (documents.size() > 0) {
-                    println("radi zadata nekako zavrsilo vamo")
+
                     handleException(customMessage = "Username already exists")
                     inProgress.value = false
                 } else {
-                    println("radi zadata proslo da nije isto")
+
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                println("radi zadata ne bi trebalo biti vamo")
+
                                 signedIn.value = true
-                                //Create profile
+                                createOrUpdateProfile(username = username)
                             } else {
                                 handleException(task.exception, "SignUp failed")
                             }
@@ -48,14 +48,61 @@ class IgViewModel @Inject constructor(
                 }
 
             }
-            .addOnFailureListener { println("radi zadata ne")}
+            .addOnFailureListener { }
+    }
+
+    private fun createOrUpdateProfile(
+        name: String? = null,
+        username: String? = null,
+        bio: String? = null,
+        imageUrl: String? = null
+    ) {
+        val uid = auth.currentUser?.uid
+        val userData = UserData(
+            userId = uid,
+            name = name ?: userData.value?.name,
+            username = username ?: userData.value?.username,
+            bio = bio ?: userData.value?.bio,
+            imageUrl = imageUrl ?: userData.value?.imageUrl,
+            following = userData.value?.following
+        )
+
+        uid?.let { uid ->
+            inProgress.value = true
+            db.collection(USERS).document(uid).get()
+                .addOnSuccessListener {
+                    if (it.exists()) {
+                        it.reference.update(userData.toMap())
+                            .addOnSuccessListener {
+                                this.userData.value = userData
+                                inProgress.value = false
+                            }
+                            .addOnFailureListener {
+                                handleException(it, "Cannot update user")
+                                inProgress.value = false
+                            }
+                    } else {
+                        db.collection(USERS).document(uid).set(userData)
+                        getUserData(uid)
+                        inProgress.value=false
+                    }
+                }
+                .addOnFailureListener {
+                    handleException(it,"Cannot create user")
+                    inProgress.value=false
+                }
+        }
+    }
+
+    private fun getUserData(uid: String) {
+
     }
 
     fun handleException(exception: Exception? = null, customMessage: String = "") {
-        println("radi zadata u gresci")
+
         exception?.printStackTrace()
-        val errorMsg=exception?.localizedMessage?:""
-        val message=if (customMessage.isEmpty()) errorMsg else "$customMessage: $errorMsg"
-        popupNotification.value=Event(message)
+        val errorMsg = exception?.localizedMessage ?: ""
+        val message = if (customMessage.isEmpty()) errorMsg else "$customMessage: $errorMsg"
+        popupNotification.value = Event(message)
     }
 }
