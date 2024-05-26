@@ -1,4 +1,4 @@
-package com.example.instragramclone.auth.data
+package com.example.instragramclone.data
 
 //FireAuth zahteva zbog praznog konstruktora da sve vrednosti budu nulluable
 data class UserData(

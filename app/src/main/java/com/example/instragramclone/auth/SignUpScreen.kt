@@ -29,9 +29,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.instragramclone.DestinationScreen
 import com.example.instragramclone.IgViewModel
 import com.example.instragramclone.R
 import com.example.instragramclone.main.CommonProgressSpinner
+import com.example.instragramclone.main.navigateTo
 
 @Composable
 fun SignUpScreen(navController: NavController, vm: IgViewModel) {
@@ -100,7 +102,8 @@ fun SignUpScreen(navController: NavController, vm: IgViewModel) {
                 color = Color.Blue,
                 modifier = Modifier
                     .padding(8.dp)
-                    .clickable { })
+                    .clickable { navigateTo(navController,DestinationScreen.Login) }
+            )
         }
         val isLoading=vm.inProgress.value
         if(isLoading){

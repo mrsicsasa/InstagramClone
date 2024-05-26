@@ -1,4 +1,4 @@
-package com.example.instragramclone.auth.data
+package com.example.instragramclone.data
 
 open class Event<out T>(private val content:T) {
     var hasBeenHandled=false

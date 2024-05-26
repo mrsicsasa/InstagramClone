@@ -2,8 +2,8 @@ package com.example.instragramclone
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.instragramclone.auth.data.Event
-import com.example.instragramclone.auth.data.UserData
+import com.example.instragramclone.data.Event
+import com.example.instragramclone.data.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
@@ -109,7 +109,7 @@ class IgViewModel @Inject constructor(
                 val user=it.toObject<UserData>()
                 userData.value=user
                 inProgress.value=false
-                popupNotification.value=Event("User date retrieve successfully")
+                popupNotification.value= Event("User date retrieve successfully")
             }
             .addOnFailureListener {
                 handleException(it, "Cannot retrieve user data")
