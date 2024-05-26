@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.instragramclone.IgViewModel
 import com.example.instragramclone.R
+import com.example.instragramclone.main.CommonProgressSpinner
 
 @Composable
 fun SignUpScreen(navController: NavController, vm: IgViewModel) {
@@ -100,6 +101,10 @@ fun SignUpScreen(navController: NavController, vm: IgViewModel) {
                 modifier = Modifier
                     .padding(8.dp)
                     .clickable { })
+        }
+        val isLoading=vm.inProgress.value
+        if(isLoading){
+            CommonProgressSpinner()
         }
 
     }
