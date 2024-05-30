@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,9 +45,25 @@ fun CommonProgressSpinner() {
         CircularProgressIndicator()
     }
 }
-fun navigateTo(navController: NavController,dest:DestinationScreen){
-    navController.navigate(dest.route){
+
+fun navigateTo(navController: NavController, dest: DestinationScreen) {
+    navController.navigate(dest.route) {
         popUpTo(dest.route) //ako korisnik ide sa screena na screen da se ne pokrece stalno novi
-        launchSingleTop=true
+        launchSingleTop = true
+    }
+}
+
+@Composable
+fun CheckSignedIn(vm: IgViewModel, navController: NavController) {
+    val alreadyLoggedIn = remember { mutableStateOf(false) }
+    val signedIn = vm.signedIn.value
+
+    LaunchedEffect(signedIn) {
+        if (signedIn && !alreadyLoggedIn.value) {
+            alreadyLoggedIn.value = true
+            navController.navigate(DestinationScreen.Feed.route) {
+                popUpTo(0)
+            }
+        }
     }
 }

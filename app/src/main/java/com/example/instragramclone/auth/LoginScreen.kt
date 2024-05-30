@@ -32,11 +32,13 @@ import androidx.navigation.NavController
 import com.example.instragramclone.DestinationScreen
 import com.example.instragramclone.IgViewModel
 import com.example.instragramclone.R
+import com.example.instragramclone.main.CheckSignedIn
 import com.example.instragramclone.main.CommonProgressSpinner
 import com.example.instragramclone.main.navigateTo
 
 @Composable
 fun LoginScreen(navController: NavController, vm: IgViewModel) {
+    CheckSignedIn(vm = vm, navController =navController )
     val focus= LocalFocusManager.current //za gasenje tastature na klik dugmeta
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
