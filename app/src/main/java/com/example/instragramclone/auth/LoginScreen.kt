@@ -78,6 +78,7 @@ fun LoginScreen(navController: NavController, vm: IgViewModel) {
             Button(
                 onClick = {
                     focus.clearFocus(force = true) //za gasenje tastature na klik dugmeta
+                    vm.onLogin(email=emailState.value.text, password = passwordState.value.text)
                 },
                 modifier = Modifier.padding(8.dp)
             ) {

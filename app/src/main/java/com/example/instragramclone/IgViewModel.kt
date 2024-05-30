@@ -24,14 +24,21 @@ class IgViewModel @Inject constructor(
     val inProgress = mutableStateOf(false)
     val userData = mutableStateOf<UserData?>(null)
     val popupNotification = mutableStateOf<Event<String>?>(null)
-    init{
-        val currentUser=auth.currentUser
-        signedIn.value=currentUser!=null
-        currentUser?.uid?.let {uid->
+
+    init {
+        auth.signOut()
+        val currentUser = auth.currentUser
+        signedIn.value = currentUser != null
+        currentUser?.uid?.let { uid ->
             getUserData(uid)
         }
     }
+
     fun onSignUp(username: String, email: String, password: String) {
+        if (username.isEmpty() or email.isEmpty() or password.isEmpty()) {
+            handleException(customMessage = "Please fill in all fields")
+            return
+        }
 
         inProgress.value = true
         db.collection(USERS).whereEqualTo("username", username).get()
@@ -45,7 +52,6 @@ class IgViewModel @Inject constructor(
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-
                                 signedIn.value = true
                                 createOrUpdateProfile(username = username)
                             } else {
@@ -57,6 +63,32 @@ class IgViewModel @Inject constructor(
 
             }
             .addOnFailureListener { }
+    }
+
+    fun onLogin(email: String, password: String) {
+        if (email.isEmpty() or password.isEmpty()) {
+            handleException(customMessage = "Please fill in all fields")
+            return
+        }
+        inProgress.value = true
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    signedIn.value = true
+                    inProgress.value = false
+                    auth.currentUser?.uid?.let { uid ->
+                        getUserData(uid)
+                    }
+                } else {
+                    handleException(task.exception, customMessage = "Login failed")
+                    inProgress.value = false
+
+                }
+            }
+            .addOnFailureListener { exc ->
+                handleException(exc, customMessage = "Login failed")
+                inProgress.value = false
+            }
     }
 
     private fun createOrUpdateProfile(
@@ -106,10 +138,10 @@ class IgViewModel @Inject constructor(
         inProgress.value = true
         db.collection(USERS).document(uid).get()
             .addOnSuccessListener {
-                val user=it.toObject<UserData>()
-                userData.value=user
-                inProgress.value=false
-                popupNotification.value= Event("User date retrieve successfully")
+                val user = it.toObject<UserData>()
+                userData.value = user
+                inProgress.value = false
+                popupNotification.value = Event("User date retrieve successfully")
             }
             .addOnFailureListener {
                 handleException(it, "Cannot retrieve user data")
