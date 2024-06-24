@@ -1,11 +1,19 @@
 package com.example.instragramclone.main
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,10 +23,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.ImageLoader
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.instragramclone.DestinationScreen
 import com.example.instragramclone.IgViewModel
+import com.example.instragramclone.R
 
 @Composable
 fun NotificationMessage(vm: IgViewModel) {
@@ -64,6 +81,47 @@ fun CheckSignedIn(vm: IgViewModel, navController: NavController) {
             navController.navigate(DestinationScreen.Feed.route) {
                 popUpTo(0)
             }
+        }
+    }
+}
+
+@Composable
+fun CommonImage(
+    data: String?,
+    modifier: Modifier = Modifier.fillMaxSize(),
+    contentScale: ContentScale = ContentScale.Crop
+) {
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current).data(data = data).build()
+    )
+
+    Image(
+        painter = painter,
+        contentDescription = "",
+        modifier = modifier,
+        contentScale = contentScale
+    )
+
+}
+
+@Composable
+fun UserImageCard(
+    userImage: String?,
+    modifier: Modifier = Modifier
+        .padding(8.dp)
+        .size(64.dp)
+) {
+    Card(shape = CircleShape, modifier = modifier) {
+        if (userImage.isNullOrEmpty()) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_user),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(Color.Gray),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            CommonImage(data = userImage)
         }
     }
 }
