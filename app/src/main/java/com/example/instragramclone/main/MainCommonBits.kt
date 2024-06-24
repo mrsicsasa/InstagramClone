@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,7 @@ import coil.request.ImageRequest
 import com.example.instragramclone.DestinationScreen
 import com.example.instragramclone.IgViewModel
 import com.example.instragramclone.R
+import com.google.android.gms.common.internal.service.Common
 
 @Composable
 fun NotificationMessage(vm: IgViewModel) {
@@ -124,4 +126,15 @@ fun UserImageCard(
             CommonImage(data = userImage)
         }
     }
+}
+
+@Composable
+fun CommonDivider() {
+    Divider(
+        color = Color.LightGray,
+        thickness = 1.dp,
+        modifier = Modifier
+            .alpha(0.3f)
+            .padding(top = 8.dp, bottom = 8.dp)
+    )
 }
