@@ -73,7 +73,10 @@ fun ProfileScreen(navController: NavController, vm: IgViewModel) {
                     dest = DestinationScreen.MyPosts
                 )
             },
-            onLogout = {}
+            onLogout = {
+                vm.onLogout()
+                navigateTo(navController,DestinationScreen.Login)
+            }
         )
     }
 }
