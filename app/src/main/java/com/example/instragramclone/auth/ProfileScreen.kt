@@ -1,16 +1,25 @@
 package com.example.instragramclone.auth
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -29,6 +38,7 @@ import androidx.navigation.NavController
 import com.example.instragramclone.DestinationScreen
 import com.example.instragramclone.IgViewModel
 import com.example.instragramclone.main.CommonDivider
+import com.example.instragramclone.main.CommonImage
 import com.example.instragramclone.main.CommonProgressSpinner
 import com.example.instragramclone.main.navigateTo
 
@@ -82,6 +92,7 @@ fun ProfileContent(
     onLogout: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val imageUrl= vm.userData.value?.imageUrl
     Column(
         modifier = Modifier
             .verticalScroll(scrollState)
@@ -97,15 +108,7 @@ fun ProfileContent(
             Text(text = "Save", modifier = Modifier.clickable { onSave.invoke() })
         }
         CommonDivider()
-        //user image
-        Column(
-            modifier = Modifier
-                .height(200.dp)
-                .fillMaxWidth()
-                .background(Color.Gray)
-        ) {
-
-        }
+       ProfileImage(imageUrl = imageUrl, vm = vm)
         CommonDivider()
         Row(
             modifier = Modifier
@@ -146,6 +149,36 @@ fun ProfileContent(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(text = "Logout", modifier = Modifier.clickable { onLogout.invoke() })
+        }
+    }
+}
+@Composable
+fun ProfileImage(imageUrl:String?,vm: IgViewModel){
+    val launcher= rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) {uri: Uri? ->
+        uri?.let{
+            vm.uploadProfileImage(uri)
+        }
+    }
+    Box(modifier =Modifier.height(IntrinsicSize.Min)){
+        Column(modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable { launcher.launch("image/*")},
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            Card(
+                shape= CircleShape,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(100.dp)
+            ) {
+                CommonImage(data = imageUrl)
+            }
+            Text(text = "Change profile picture")
+        }
+        val isLoading=vm.inProgress.value
+        if(isLoading){
+            CommonProgressSpinner()
         }
     }
 }
